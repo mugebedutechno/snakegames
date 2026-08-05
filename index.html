@@ -205,10 +205,7 @@
                     <i class="fa-solid fa-play text-xl"></i> Mulai Petualangan (1P)
                 </button>
                 <button onclick="openIdentityForm(2)" class="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-bold font-fredoka text-lg py-3.5 px-6 rounded-2xl shadow-lg shadow-pink-500/20 transform hover:-translate-y-0.5 active:translate-y-0 transition duration-150 flex items-center justify-center gap-3">
-                    <i class="fa-solid fa-user-friends text-xl"></i> Mode Tanding (2P Lokal)
-                </button>
-                <button onclick="openIdentityForm(3)" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold font-fredoka text-lg py-3.5 px-6 rounded-2xl shadow-lg shadow-indigo-500/20 transform hover:-translate-y-0.5 active:translate-y-0 transition duration-150 flex items-center justify-center gap-3">
-                    <i class="fa-solid fa-globe text-xl"></i> Mode Online (2 Device)
+                    <i class="fa-solid fa-user-friends text-xl"></i> Mode Tanding (2P Versus)
                 </button>
             </div>
             <!-- Informasi Pembuat & Cara Bermain -->
@@ -280,40 +277,6 @@
                     <button onclick="submitIdentity()" class="w-full bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 font-bold font-fredoka px-6 py-3 rounded-xl transition shadow-lg shadow-cyan-500/20">
                         Mulai Bermain!
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODAL LOBBY ONLINE -->
-        <div id="lobby-modal" class="hidden fixed inset-0 bg-slate-950/90 backdrop-blur-sm z-50 flex items-center justify-center p-4 no-print font-sans">
-            <div class="bg-slate-900 border max-w-md w-full p-6 rounded-3xl shadow-2xl relative neon-border-cyan text-center">
-                <button onclick="closeLobby()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-                <h3 class="text-xl font-fredoka text-cyan-400 text-center mb-6 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-network-wired"></i> Lobi Multiplayer Online
-                </h3>
-                
-                <div id="lobby-selection">
-                    <button onclick="createOnlineRoom()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold py-3 px-4 rounded-xl mb-4 shadow-lg flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5">
-                        <i class="fa-solid fa-plus"></i> Buat Ruangan Baru (Host)
-                    </button>
-                    <div class="flex gap-2 relative">
-                        <input type="text" id="join-room-code" placeholder="Kode 4 Huruf" maxlength="4" class="flex-grow bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-center text-xl font-bold text-white uppercase focus:outline-none focus:border-cyan-500 w-1/2 transition">
-                        <button onclick="joinOnlineRoom()" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 w-1/2 transition transform hover:-translate-y-0.5">
-                            <i class="fa-solid fa-arrow-right-to-bracket"></i> Gabung
-                        </button>
-                    </div>
-                    <div id="lobby-warning" class="hidden mt-3 text-xs text-pink-400 font-bold animate-pulse"></div>
-                </div>
-
-                <div id="lobby-waiting" class="hidden">
-                    <div class="inline-block p-4 bg-slate-950 rounded-2xl border border-slate-800 mb-4 w-full">
-                        <span class="block text-xs text-slate-400 font-bold uppercase mb-1">Berikan Kode Ini Ke Temanmu:</span>
-                        <span id="display-room-code" class="text-5xl font-fredoka text-cyan-300 tracking-widest uppercase block my-2">----</span>
-                    </div>
-                    <p class="text-sm text-slate-300 font-semibold mb-4 animate-pulse">Menunggu teman bergabung...</p>
-                    <div class="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
                 </div>
             </div>
         </div>
@@ -600,53 +563,7 @@
         &copy; 2026 Math Snake: Petualangan Angka. Dibuat khusus sebagai Media Pembelajaran Interaktif Edutech Sekolah Dasar.
     </footer>
     
-    <!-- SCRIPT FIREBASE MULTIPLAYER -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'math-snake-default';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        
-        try {
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const db = getFirestore(app);
-
-            window.fbDb = db;
-            window.fbAuth = auth;
-            window.fbAppId = appId;
-            window.firebaseReady = false;
-            
-            window.fbDoc = doc;
-            window.fbGetDoc = getDoc;
-            window.fbSetDoc = setDoc;
-            window.fbUpdateDoc = updateDoc;
-            window.fbOnSnapshot = onSnapshot;
-            window.fbCollection = collection;
-
-            async function initFirebase() {
-                try {
-                    const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                    if (token) {
-                        await signInWithCustomToken(auth, token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                    window.firebaseReady = true;
-                    window.userId = auth.currentUser.uid;
-                } catch (e) {
-                    console.error("Firebase Auth Error:", e);
-                }
-            }
-            initFirebase();
-        } catch(err) {
-            console.error("Firebase Init Error (Running without Online functionality):", err);
-        }
-    </script>
-
-    <!-- SCRIPT LOGIKA PERMAINAN UTAMA -->
+    <!-- SCRIPT LOGIKA PERMAINAN -->
     <script>
         // --- INTEGRASI WEB AUDIO API (SYNTHESIZER RETRO) ---
         let audioCtx = null;
@@ -656,6 +573,7 @@
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
         }
+        
         function playTone(freq, type, duration, vol = 0.1) {
             if (!soundEnabled) return;
             initAudio();
@@ -676,56 +594,82 @@
                 console.log("Audio Error:", e);
             }
         }
+        
         function playSfx(preset) {
             if (!soundEnabled) return;
             initAudio();
             try {
                 if (preset === 'correct') {
-                    playTone(523.25, 'triangle', 0.1, 0.15);
-                    setTimeout(() => playTone(659.25, 'triangle', 0.1, 0.15), 60);
-                    setTimeout(() => playTone(783.99, 'triangle', 0.2, 0.15), 120);
+                    playTone(523.25, 'triangle', 0.1, 0.15); // C5
+                    setTimeout(() => playTone(659.25, 'triangle', 0.1, 0.15), 60); // E5
+                    setTimeout(() => playTone(783.99, 'triangle', 0.2, 0.15), 120); // G5
                 } else if (preset === 'wrong') {
-                    playTone(220, 'sawtooth', 0.15, 0.15);
-                    setTimeout(() => playTone(146.83, 'sawtooth', 0.3, 0.15), 100);
+                    playTone(220, 'sawtooth', 0.15, 0.15); // A3
+                    setTimeout(() => playTone(146.83, 'sawtooth', 0.3, 0.15), 100); // D3
                 } else if (preset === 'combo_trigger') {
                     let times = [0, 80, 160, 240, 320];
                     let notes = [261.63, 329.63, 392.00, 523.25, 659.25];
-                    times.forEach((t, idx) => { setTimeout(() => playTone(notes[idx], 'sine', 0.15, 0.2), t); });
+                    times.forEach((t, idx) => {
+                        setTimeout(() => playTone(notes[idx], 'sine', 0.15, 0.2), t);
+                    });
                 } else if (preset === 'gameover') {
                     let times = [0, 150, 300, 450];
                     let notes = [392.00, 349.23, 311.13, 261.63];
-                    times.forEach((t, idx) => { setTimeout(() => playTone(notes[idx], 'square', 0.3, 0.15), t); });
+                    times.forEach((t, idx) => {
+                        setTimeout(() => playTone(notes[idx], 'square', 0.3, 0.15), t);
+                    });
                 } else if (preset === 'hit') {
                     playTone(100, 'sawtooth', 0.4, 0.2);
                 } else if (preset === 'powerup') {
                     playTone(440, 'sine', 0.1, 0.15);
                     setTimeout(() => playTone(880, 'sine', 0.2, 0.15), 100);
                 }
-            } catch (err) {}
+            } catch (err) {
+                console.log(err);
+            }
         }
         
         // --- SISTEM BGM (BACKGROUND MUSIC) ---
+        // Irama 8-bit ceria untuk mengiringi permainan
         const bgmMelody = [
-            261.63, 392.00, 329.63, 392.00,
-            349.23, 523.25, 440.00, 523.25,
-            392.00, 587.33, 493.88, 587.33,
-            523.25, 392.00, 261.63, 0
+            261.63, 392.00, 329.63, 392.00, // Bar 1 (C Major)
+            349.23, 523.25, 440.00, 523.25, // Bar 2 (F Major)
+            392.00, 587.33, 493.88, 587.33, // Bar 3 (G Major)
+            523.25, 392.00, 261.63, 0       // Bar 4 (C resolving)
         ];
         let bgmNoteIndex = 0;
         let bgmTimer = null;
         function playNextBgmNote() {
-            if (!gameActive) return;
+            if (!gameActive) return; // Hentikan loop jika game tidak aktif
+            
             if (soundEnabled && !isPaused) {
                 let freq = bgmMelody[bgmNoteIndex];
-                if (freq > 0) playTone(freq, 'triangle', 0.15, 0.02);
+                if (freq > 0) {
+                    // Volume sangat kecil (0.02) agar hanya menjadi musik latar dan tidak menutupi efek suara
+                    playTone(freq, 'triangle', 0.15, 0.02);
+                }
                 bgmNoteIndex = (bgmNoteIndex + 1) % bgmMelody.length;
             }
+            
+            // Kecepatan musik beradaptasi secara dinamis sesuai kecepatan game (speedMultiplier)
+            // Awal permainan = 250ms, semakin cepat game berjalan, tempo musik semakin naik
             let currentBgmSpeed = 250 / speedMultiplier; 
-            if (comboModeActive) currentBgmSpeed *= 0.8;
+            if (comboModeActive) currentBgmSpeed *= 0.8; // Musik lebih kencang saat Mode Combo
+            
             bgmTimer = setTimeout(playNextBgmNote, currentBgmSpeed);
         }
-        function startBGM() { stopBGM(); bgmNoteIndex = 0; playNextBgmNote(); }
-        function stopBGM() { if (bgmTimer) { clearTimeout(bgmTimer); bgmTimer = null; } }
+        function startBGM() {
+            stopBGM();
+            bgmNoteIndex = 0;
+            playNextBgmNote();
+        }
+        // Hentikan BGM secara permanen
+        function stopBGM() {
+            if (bgmTimer) {
+                clearTimeout(bgmTimer);
+                bgmTimer = null;
+            }
+        }
         
         const btnSound = document.getElementById('btn-sound');
         const soundIcon = document.getElementById('sound-icon');
@@ -733,13 +677,16 @@
         btnSound.addEventListener('click', () => {
             soundEnabled = !soundEnabled;
             if (soundEnabled) {
-                soundIcon.className = "fa-solid fa-volume-high"; soundText.innerText = "Suara: Aktif";
-                initAudio(); playTone(440, 'sine', 0.05);
+                soundIcon.className = "fa-solid fa-volume-high";
+                soundText.innerText = "Suara: Aktif";
+                initAudio();
+                playTone(440, 'sine', 0.05);
             } else {
-                soundIcon.className = "fa-solid fa-volume-xmark text-red-400"; soundText.innerText = "Suara: Mati";
+                soundIcon.className = "fa-solid fa-volume-xmark text-red-400";
+                soundText.innerText = "Suara: Mati";
             }
         });
-
+        
         // --- STATE & VARIABEL GLOBAL GAME ---
         const canvas = document.getElementById('game-canvas');
         const ctx = canvas.getContext('2d');
@@ -752,109 +699,153 @@
         let gameLoopTimer = null;
         let baseSpeed = 250; 
         let speedMultiplier = 1;
-        
-        let currentDifficulty = 'beginner';
+        // Pilihan Tingkat Kesulitan Default
+        let currentDifficulty = 'beginner'; // 'beginner', 'intermediate', 'expert'
+        // Nama & Kelas Siswa
         let pendingGameMode = 1;
-        let studentName = ""; let studentClass = "";
-        let student2Name = ""; let student2Class = "";
+        let studentName = "";
+        let studentClass = "";
+        let student2Name = "";
+        let student2Class = "";
         
-        let currentWinnerName = ""; let currentWinnerClass = ""; let currentCertReason = ""; let currentCertBadge = "";
-        let p1SelectedColor = '#10b981';
-        let p2SelectedColor = '#ef4444';
+        // Data Pemenang Saat Ini (Untuk Sertifikat)
+        let currentWinnerName = "";
+        let currentWinnerClass = "";
+        let currentCertReason = "";
+        let currentCertBadge = "";
+        // Custom warna ular pilihan pemain di formulir modal
+        let p1SelectedColor = '#10b981'; // Default Hijau
+        let p2SelectedColor = '#ef4444'; // Default Merah
         let highScore = parseInt(localStorage.getItem('math_snake_highscore')) || 0;
         document.getElementById('high-score-header').innerText = highScore;
         
-        // Variabel Multiplayer Online Cloud
-        let isOnlineHost = false;
-        let isOnlineGuest = false;
-        let onlineRoomId = "";
-        let roomUnsubscribe = null;
-        
-        let p1 = { body: [], dir: 'RIGHT', nextDir: 'RIGHT', color: '#10b981', score: 0, lives: 5, isSuper: false, superTimer: 0, activeGhost: false, ghostTimer: 0, stunned: false, stunTimer: 0 };
-        let p2 = { body: [], dir: 'LEFT', nextDir: 'LEFT', color: '#ef4444', score: 0, lives: 5, stunned: false, stunTimer: 0, activeGhost: false, ghostTimer: 0 };
+        // Definisi Objek Ular
+        let p1 = {
+            body: [], dir: 'RIGHT', nextDir: 'RIGHT', color: '#10b981',
+            score: 0, lives: 5, isSuper: false, superTimer: 0, activeGhost: false, ghostTimer: 0, stunned: false, stunTimer: 0
+        };
+        let p2 = {
+            body: [], dir: 'LEFT', nextDir: 'LEFT', color: '#ef4444',
+            score: 0, lives: 5, stunned: false, stunTimer: 0, activeGhost: false, ghostTimer: 0
+        };
         let currentQuestion = { text: "", answer: 0, choices: [] };
-        let lastQuestionText = "";
+        let lastQuestionText = ""; // Mencegah soal kembar beruntun
         let incorrectList = [];
-        let consecutiveCorrect = 0;
-        let comboModeActive = false; let comboTimeRemaining = 0; let comboCountdownInterval = null;
-        
-        let elapsedSeconds = 0; let timerInterval = null;
-        let touchControlMode = 'SWIPE'; let touchStartX = 0; let touchStartY = 0;
+        let consecutiveCorrect = 0; // Streak dibagikan untuk 1P & 2P
+        let comboModeActive = false;
+        let comboTimeRemaining = 0;
+        let comboCountdownInterval = null;
+        // Variabel Pengatur Waktu
+        let elapsedSeconds = 0;
+        let timerInterval = null;
+        let touchControlMode = 'SWIPE';
+        let touchStartX = 0;
+        let touchStartY = 0;
         
         // --- MANAJEMEN MENU UTAMA & IDENTITAS ---
+        // Pemilihan Warna Dinamis untuk Pemain 1
         function setP1Color(colorHex, colorName) {
             p1SelectedColor = colorHex;
             document.querySelectorAll('.p1-color-btn').forEach(btn => {
-                btn.innerHTML = ''; btn.classList.remove('border-white', 'transform', 'scale-110'); btn.classList.add('border-transparent');
+                btn.innerHTML = '';
+                btn.classList.remove('border-white', 'transform', 'scale-110');
+                btn.classList.add('border-transparent');
             });
+            
             const selectedBtn = document.getElementById('p1-color-' + colorName);
-            selectedBtn.classList.remove('border-transparent'); selectedBtn.classList.add('border-white', 'transform', 'scale-110');
+            selectedBtn.classList.remove('border-transparent');
+            selectedBtn.classList.add('border-white', 'transform', 'scale-110');
             selectedBtn.innerHTML = '<span class="absolute inset-0 flex items-center justify-center text-white"><i class="fa-solid fa-check text-xs"></i></span>';
+            
+            // Logika Auto-Swap: Jika warna P2 sama dengan P1 yang baru dipilih, ubah warna P2
             if (pendingGameMode === 2 && p2SelectedColor === p1SelectedColor) {
-                const colors = [{ hex: '#10b981', name: 'green' }, { hex: '#ef4444', name: 'red' }, { hex: '#3b82f6', name: 'blue' }];
+                const colors = [
+                    { hex: '#10b981', name: 'green' },
+                    { hex: '#ef4444', name: 'red' },
+                    { hex: '#3b82f6', name: 'blue' }
+                ];
                 const altColor = colors.find(c => c.hex !== p1SelectedColor);
                 setP2Color(altColor.hex, altColor.name);
             }
             playTone(600, 'sine', 0.05);
         }
+        
+        // Pemilihan Warna Dinamis untuk Pemain 2
         function setP2Color(colorHex, colorName) {
             if (colorHex === p1SelectedColor) {
-                showFloatingMessage("Warna ini sudah dipilih Pemain 1!", "text-pink-400"); playSfx('wrong'); return;
+                showFloatingMessage("Warna ini sudah dipilih Pemain 1!", "text-pink-400");
+                playSfx('wrong');
+                return;
             }
             p2SelectedColor = colorHex;
             document.querySelectorAll('.p2-color-btn').forEach(btn => {
-                btn.innerHTML = ''; btn.classList.remove('border-white', 'transform', 'scale-110'); btn.classList.add('border-transparent');
+                btn.innerHTML = '';
+                btn.classList.remove('border-white', 'transform', 'scale-110');
+                btn.classList.add('border-transparent');
             });
+            
             const selectedBtn = document.getElementById('p2-color-' + colorName);
-            selectedBtn.classList.remove('border-transparent'); selectedBtn.classList.add('border-white', 'transform', 'scale-110');
+            selectedBtn.classList.remove('border-transparent');
+            selectedBtn.classList.add('border-white', 'transform', 'scale-110');
             selectedBtn.innerHTML = '<span class="absolute inset-0 flex items-center justify-center text-white"><i class="fa-solid fa-check text-xs"></i></span>';
+            
             playTone(600, 'sine', 0.05);
         }
+        
+        // Pengatur Tingkat Kesulitan UI & Deskripsi
         function setDifficulty(level) {
             currentDifficulty = level;
             document.querySelectorAll('.difficulty-btn').forEach(btn => {
-                btn.classList.remove('border-cyan-500', 'bg-cyan-500/20', 'text-cyan-300'); btn.classList.add('border-transparent', 'bg-slate-900/60', 'text-slate-400');
+                btn.classList.remove('border-cyan-500', 'bg-cyan-500/20', 'text-cyan-300');
+                btn.classList.add('border-transparent', 'bg-slate-900/60', 'text-slate-400');
             });
+            
             const activeBtn = document.getElementById('diff-' + level);
-            activeBtn.classList.remove('border-transparent', 'bg-slate-900/60', 'text-slate-400'); activeBtn.classList.add('border-cyan-500', 'bg-cyan-500/20', 'text-cyan-300');
+            activeBtn.classList.remove('border-transparent', 'bg-slate-900/60', 'text-slate-400');
+            activeBtn.classList.add('border-cyan-500', 'bg-cyan-500/20', 'text-cyan-300');
             const descEl = document.getElementById('difficulty-desc');
-            if (level === 'beginner') descEl.innerText = "Perhitungan angka satuan (0-9) & pergerakan ular stabil melambat.";
-            else if (level === 'intermediate') descEl.innerText = "Perhitungan angka satuan & puluhan. Pergerakan ular bertambah cepat bertahap.";
-            else if (level === 'expert') descEl.innerText = "Perhitungan puluhan & ratusan. Pergerakan ular cepat & menantang sejak awal!";
+            if (level === 'beginner') {
+                descEl.innerText = "Perhitungan angka satuan (0-9) & pergerakan ular stabil melambat.";
+            } else if (level === 'intermediate') {
+                descEl.innerText = "Perhitungan angka satuan & puluhan. Pergerakan ular bertambah cepat bertahap.";
+            } else if (level === 'expert') {
+                descEl.innerText = "Perhitungan puluhan & ratusan. Pergerakan ular cepat & menantang sejak awal!";
+            }
             playTone(500, 'sine', 0.05);
         }
         function toggleHowToPlay(show) {
             const modal = document.getElementById('how-to-play-modal');
-            if (show) modal.classList.remove('hidden'); else modal.classList.add('hidden');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
             playTone(400, 'sine', 0.05);
         }
         
+        // Buka Pop-Up Form Dinamis Berdasarkan Mode
         function openIdentityForm(mode) {
             pendingGameMode = mode;
             document.getElementById('identity-modal').classList.remove('hidden');
             document.getElementById('validation-warning').classList.add('hidden');
             
-            if (mode === 2 || mode === 3) {
-                document.getElementById('identity-modal-title').innerHTML = mode === 2 ? '<i class="fa-solid fa-users text-indigo-400"></i> Identitas Pemain (Versus Lokal)' : '<i class="fa-solid fa-globe text-indigo-400"></i> Identitas Pemain (Online)';
+            if (mode === 2) {
+                document.getElementById('identity-modal-title').innerHTML = '<i class="fa-solid fa-users text-indigo-400"></i> Identitas Pemain (Versus)';
+                document.getElementById('form-p2').classList.remove('hidden');
                 
-                if (mode === 3) {
-                    document.getElementById('form-p2').classList.add('hidden'); // Di online, kamu hanya pilih karakter sendiri
-                } else {
-                    document.getElementById('form-p2').classList.remove('hidden');
-                    setP2Color('#ef4444', 'red');
-                }
+                // Set warna awal dinamis dan cegah kesamaan warna
                 setP1Color('#10b981', 'green');
+                setP2Color('#ef4444', 'red');
             } else {
                 document.getElementById('identity-modal-title').innerHTML = '<i class="fa-solid fa-user text-emerald-400"></i> Identitas Petualang (1P)';
                 document.getElementById('form-p2').classList.add('hidden');
+                
+                // Set warna awal default untuk 1P
                 setP1Color('#10b981', 'green');
             }
             playTone(400, 'sine', 0.05);
         }
         function closeIdentityForm() {
-            document.getElementById('identity-modal').classList.add('hidden'); playTone(300, 'sine', 0.05);
+            document.getElementById('identity-modal').classList.add('hidden');
+            playTone(300, 'sine', 0.05);
         }
-        
         function submitIdentity() {
             const warningEl = document.getElementById('validation-warning');
             studentName = document.getElementById('input-p1-name').value.trim();
@@ -863,123 +854,27 @@
                 student2Name = document.getElementById('input-p2-name').value.trim();
                 student2Class = document.getElementById('input-p2-class').value.trim();
                 if (studentName === "" || studentClass === "" || student2Name === "" || student2Class === "") {
-                    warningEl.classList.remove('hidden'); playSfx('wrong'); return;
+                    warningEl.classList.remove('hidden');
+                    playSfx('wrong');
+                    return;
                 }
             } else {
                 if (studentName === "" || studentClass === "") {
-                    warningEl.classList.remove('hidden'); playSfx('wrong'); return;
+                    warningEl.classList.remove('hidden');
+                    playSfx('wrong');
+                    return;
                 }
             }
             warningEl.classList.add('hidden');
             document.getElementById('identity-modal').classList.add('hidden');
             
             document.getElementById('p1-display-name').innerText = studentName;
-            if (pendingGameMode === 2) document.getElementById('p2-display-name').innerText = student2Name;
-            
-            // Redirect alur jika Mode Online
-            if (pendingGameMode === 3) {
-                openLobby();
-            } else {
-                startGame(pendingGameMode);
+            if (pendingGameMode === 2) {
+                document.getElementById('p2-display-name').innerText = student2Name;
             }
-        }
-        
-        // --- MULTIPLAYER ONLINE LOBBY LOGIC ---
-        function openLobby() {
-            document.getElementById('lobby-modal').classList.remove('hidden');
-            document.getElementById('lobby-selection').classList.remove('hidden');
-            document.getElementById('lobby-waiting').classList.add('hidden');
-            document.getElementById('lobby-warning').classList.add('hidden');
-            playTone(400, 'sine', 0.05);
-        }
-        function closeLobby() {
-            document.getElementById('lobby-modal').classList.add('hidden');
-            if (roomUnsubscribe) { roomUnsubscribe(); roomUnsubscribe = null; }
-        }
-        function generateRoomCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; let res = '';
-            for(let i=0; i<4; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
-            return res;
-        }
-        
-        async function createOnlineRoom() {
-            const warn = document.getElementById('lobby-warning');
-            if(!window.firebaseReady || !window.userId) {
-                warn.innerText = "Sedang menghubungi server... coba sesaat lagi!"; warn.classList.remove('hidden'); return;
-            }
-            warn.classList.add('hidden');
-            onlineRoomId = generateRoomCode();
-            document.getElementById('lobby-selection').classList.add('hidden');
-            document.getElementById('lobby-waiting').classList.remove('hidden');
-            document.getElementById('display-room-code').innerText = onlineRoomId;
             
-            const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), onlineRoomId);
-            await window.fbSetDoc(roomRef, {
-                status: 'waiting', hostId: window.userId, hostName: studentName, hostClass: studentClass, p1Color: p1SelectedColor,
-                createdAt: Date.now(), gameState: null, guestInput: null
-            });
-            
-            isOnlineHost = true; isOnlineGuest = false;
-            
-            // Dengarkan sampai ada Guest yang join
-            roomUnsubscribe = window.fbOnSnapshot(roomRef, (snap) => {
-                const data = snap.data();
-                if(data && data.status === 'playing' && data.guestId) {
-                    student2Name = data.guestName;
-                    student2Class = data.guestClass;
-                    p2SelectedColor = data.p2Color; // Mengikuti warna guest yang tidak bentrok
-                    document.getElementById('p2-display-name').innerText = student2Name;
-                    closeLobby();
-                    startGame(3);
-                }
-            }, (error) => console.error(error));
+            startGame(pendingGameMode);
         }
-        
-        async function joinOnlineRoom() {
-            const warn = document.getElementById('lobby-warning');
-            if(!window.firebaseReady || !window.userId) {
-                warn.innerText = "Sistem Offline! Coba sesaat lagi."; warn.classList.remove('hidden'); return;
-            }
-            const codeInputEl = document.getElementById('join-room-code');
-            const codeInput = codeInputEl.value.toUpperCase();
-            if(codeInput.length !== 4) {
-                warn.innerText = "Masukkan 4 Huruf Kode dengan benar!"; warn.classList.remove('hidden'); return;
-            }
-            warn.classList.add('hidden');
-            
-            const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), codeInput);
-            const snap = await window.fbGetDoc(roomRef);
-            
-            if(snap.exists() && snap.data().status === 'waiting') {
-                onlineRoomId = codeInput;
-                const hostData = snap.data();
-                student2Name = hostData.hostName;
-                student2Class = hostData.hostClass;
-                
-                let myColor = p1SelectedColor;
-                if (myColor === hostData.p1Color) {
-                    const altColors = ['#10b981', '#ef4444', '#3b82f6'];
-                    myColor = altColors.find(c => c !== hostData.p1Color);
-                }
-                p1SelectedColor = hostData.p1Color; // Tetap anggap P1 sebagai Host
-                p2SelectedColor = myColor;          // Anggap P2 sebagai Diri Sendiri (Guest)
-                
-                document.getElementById('p1-display-name').innerText = student2Name; 
-                document.getElementById('p2-display-name').innerText = studentName;  
-                
-                await window.fbUpdateDoc(roomRef, {
-                    status: 'playing', guestId: window.userId, guestName: studentName, guestClass: studentClass, p2Color: myColor
-                });
-                
-                isOnlineHost = false; isOnlineGuest = true;
-                closeLobby();
-                startGame(3);
-            } else {
-                warn.innerText = "Gagal! Ruangan tidak ditemukan atau sudah main."; warn.classList.remove('hidden');
-                codeInputEl.value = "";
-            }
-        }
-
         const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
         if (isMobile) document.getElementById('mobile-controls').classList.remove('hidden');
         
@@ -989,20 +884,22 @@
             gameMode = mode;
             gameActive = true;
             isPaused = false;
-            
+            // Reset Tombol Pause
             const btnPause = document.getElementById('btn-pause');
             btnPause.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
             btnPause.className = "bg-amber-500/20 text-amber-400 hover:bg-amber-500/40 px-4 py-1.5 rounded-lg text-sm font-bold transition flex items-center gap-2";
             document.getElementById('menu-screen').classList.add('hidden');
             document.getElementById('evaluation-screen').classList.add('hidden');
             document.getElementById('gameplay-screen').classList.remove('hidden');
-            
-            // Konfigurasi P1
-            p1.score = 0; p1.lives = 5; p1.color = p1SelectedColor; 
+            p1.score = 0;
+            p1.lives = 5;
+            p1.color = p1SelectedColor; // Memperbaiki ReferenceError dengan menggunakan warna pilihan Pemain 1
             p1.isSuper = false; p1.superTimer = 0; p1.activeGhost = false; p1.ghostTimer = 0; p1.stunned = false; p1.stunTimer = 0;
             p1.body = [{x: 6, y: 10}, {x: 5, y: 10}, {x: 4, y: 10}];
             p1.dir = 'RIGHT'; p1.nextDir = 'RIGHT';
-            consecutiveCorrect = 0; comboModeActive = false; clearInterval(comboCountdownInterval);
+            consecutiveCorrect = 0;
+            comboModeActive = false;
+            clearInterval(comboCountdownInterval);
             document.getElementById('combo-indicator').classList.add('hidden');
             document.getElementById('question-board').className = "bg-slate-900 border-2 border-indigo-500/40 p-5 rounded-2xl shadow-2xl text-center relative overflow-hidden transition-all duration-300";
             incorrectList = [];
@@ -1012,34 +909,37 @@
             if (p1StunLabel) p1StunLabel.classList.add('hidden');
             updateHeartsUI();
             
-            elapsedSeconds = 0; updateTimerUI();
+            // Setup Pengatur Waktu (Timer)
+            elapsedSeconds = 0;
+            updateTimerUI();
             document.getElementById('game-timer-display').classList.remove('hidden');
             clearInterval(timerInterval);
-            timerInterval = setInterval(() => { if (gameActive && !isPaused) { elapsedSeconds++; updateTimerUI(); } }, 1000);
-            
-            if (currentDifficulty === 'beginner') baseSpeed = 280;
-            else if (currentDifficulty === 'intermediate') baseSpeed = 220;
-            else baseSpeed = 160; 
-            
-            // Setup Mode Versus Lokal (2) & Online (3)
-            if (gameMode === 2 || gameMode === 3) {
-                document.getElementById('p2-status-panel').classList.remove('hidden');
-                document.getElementById('streak-panel').classList.remove('hidden');
-                
-                if (gameMode === 3) {
-                    if(isOnlineHost) {
-                        document.getElementById('control-tips').innerHTML = "Anda P1 (Host): <kbd class='bg-slate-800 px-1 rounded'>WASD</kbd>";
-                    } else {
-                        document.getElementById('control-tips').innerHTML = "Anda P2 (Guest): <kbd class='bg-slate-800 px-1 rounded'>Panah Arah</kbd>";
-                    }
-                    // Jika online, hilangkan tombol Pause (real-time tidak bisa pause lokal sepihak dengan adil)
-                    document.getElementById('btn-pause').classList.add('hidden');
-                } else {
-                    document.getElementById('control-tips').innerHTML = "P1: <kbd class='bg-slate-800 px-1 rounded'>WASD</kbd> | P2: <kbd class='bg-slate-800 px-1 rounded'>Panah Arah</kbd>";
-                    document.getElementById('btn-pause').classList.remove('hidden');
+            timerInterval = setInterval(() => {
+                if (gameActive && !isPaused) {
+                    elapsedSeconds++;
+                    updateTimerUI();
                 }
-                
+            }, 1000);
+            
+            // Pengaturan Kecepatan Awal Berdasarkan Tingkat Kesulitan
+            if (currentDifficulty === 'beginner') {
+                baseSpeed = 280; // Lambat & stabil
+            } else if (currentDifficulty === 'intermediate') {
+                baseSpeed = 220; // Menengah
+            } else {
+                baseSpeed = 160; // Cepat (Expert)
+            }
+            
+            // Setup Mode Versus
+            if (gameMode === 2) {
+                document.getElementById('p2-status-panel').classList.remove('hidden');
+                // Streak Panel sekarang juga Aktif di VS Mode
+                document.getElementById('streak-panel').classList.remove('hidden');
+                document.getElementById('control-tips').innerHTML = "P1: <kbd class='bg-slate-800 px-1 rounded'>WASD</kbd> | P2: <kbd class='bg-slate-800 px-1 rounded'>Panah Arah</kbd>";
+                // Mengatur warna Pemain 2 sesuai pilihan yang disimpan di p2SelectedColor
                 p2.color = p2SelectedColor;
+                
+                // Ubah warna indikator visual P2 di halaman status
                 document.getElementById('p2-color-indicator').style.backgroundColor = p2.color;
                 p2.score = 0; p2.lives = 5; p2.stunned = false; p2.stunTimer = 0; p2.activeGhost = false; p2.ghostTimer = 0;
                 p2.body = [{x: 23, y: 10}, {x: 24, y: 10}, {x: 25, y: 10}];
@@ -1051,32 +951,20 @@
                 document.getElementById('p2-status-panel').classList.add('hidden');
                 document.getElementById('streak-panel').classList.remove('hidden');
                 document.getElementById('control-tips').innerHTML = "1P: <kbd class='bg-slate-800 px-1 rounded'>Panah Arah</kbd> atau <kbd class='bg-slate-800 px-1 rounded'>WASD</kbd>";
-                document.getElementById('btn-pause').classList.remove('hidden');
             }
-            
             updateStreakStarsUI();
-            
-            // Di mode online, Host yang bertugas mengacak soal
-            if (gameMode !== 3 || isOnlineHost) {
-                generateNewQuestion();
-            }
-            
+            generateNewQuestion();
             speedMultiplier = 1;
             if (gameLoopTimer) clearInterval(gameLoopTimer);
-            
-            if (gameMode === 3) {
-                setupOnlineSync();
-            } else {
-                runGameLoop();
-            }
+            runGameLoop();
             
             playSfx('correct');
-            startBGM(); 
+            startBGM(); // Mulai memutar musik instrumen
         }
         
         // --- SISTEM PAUSE ---
         function togglePause() {
-            if (!gameActive || gameMode === 3) return; // Mode online tidak bisa pause lokal
+            if (!gameActive) return;
             isPaused = !isPaused;
             const btn = document.getElementById('btn-pause');
             
@@ -1091,86 +979,19 @@
             }
             playTone(440, 'sine', 0.1);
         }
-        
         function runGameLoop() {
             let actualSpeed = baseSpeed / speedMultiplier;
             if (comboModeActive) actualSpeed = (baseSpeed * 0.8) / speedMultiplier;
             gameLoopTimer = setInterval(() => {
                 if (gameActive && !isPaused) {
-                    if (gameMode !== 3 || isOnlineHost) {
-                        updateGame();
-                        if (isOnlineHost) syncStateToFirebase();
-                    }
+                    updateGame();
                     drawGame();
                 }
             }, actualSpeed);
         }
-        
-        function setupOnlineSync() {
-            const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), onlineRoomId);
-            if (roomUnsubscribe) roomUnsubscribe();
-            
-            roomUnsubscribe = window.fbOnSnapshot(roomRef, (snap) => {
-                if(!gameActive) return;
-                const data = snap.data();
-                if(!data) return;
-                
-                if (isOnlineHost) {
-                    // Host mengutamakan Input Guest P2 untuk pergerakan selanjutnya
-                    if (data.guestInput && data.guestInput !== p2.nextDir) {
-                        p2.nextDir = data.guestInput;
-                    }
-                } else if (isOnlineGuest) {
-                    // Guest mempercayakan semua stat gamenya terhadap kiriman Host
-                    if (data.gameState) {
-                        p1 = data.gameState.p1;
-                        p2 = data.gameState.p2;
-                        currentQuestion = data.gameState.currentQuestion;
-                        comboModeActive = data.gameState.comboModeActive;
-                        consecutiveCorrect = data.gameState.consecutiveCorrect;
-                        
-                        document.getElementById('p1-score').innerText = p1.score;
-                        document.getElementById('p2-score').innerText = p2.score;
-                        updateHeartsUI(); updateP2HeartsUI();
-                        
-                        const probEl = document.getElementById('math-problem');
-                        if(probEl.innerText !== currentQuestion.text) {
-                            probEl.innerText = currentQuestion.text;
-                        }
-                        
-                        if(p1.stunned) document.getElementById('p1-stunned-label').classList.remove('hidden');
-                        else document.getElementById('p1-stunned-label').classList.add('hidden');
-                        
-                        if(p2.stunned) document.getElementById('p2-stunned-label').classList.remove('hidden');
-                        else document.getElementById('p2-stunned-label').classList.add('hidden');
-                        
-                        if(comboModeActive) document.getElementById('combo-indicator').classList.remove('hidden');
-                        else document.getElementById('combo-indicator').classList.add('hidden');
-                    }
-                    
-                    // Host memberikan lampu hijau siapa yang menang
-                    if (p1.lives <= 0 || p2.lives <= 0 || p1.score >= 500 || p2.score >= 500) {
-                        endGame();
-                    }
-                }
-            }, (error) => console.error(error));
-            
-            runGameLoop();
-        }
-        
-        function syncStateToFirebase() {
-            if(!isOnlineHost || !gameActive) return;
-            const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), onlineRoomId);
-            window.fbUpdateDoc(roomRef, {
-                gameState: {
-                    p1: p1, p2: p2, currentQuestion: currentQuestion,
-                    comboModeActive: comboModeActive, consecutiveCorrect: consecutiveCorrect
-                }
-            }).catch(e => console.error(e));
-        }
-        
         function updateGameLoopSpeed() {
-            clearInterval(gameLoopTimer); runGameLoop();
+            clearInterval(gameLoopTimer);
+            runGameLoop();
         }
         function updateTimerUI() {
             const m = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
@@ -1179,9 +1000,10 @@
         }
         function exitToMenu() {
             gameActive = false;
-            clearInterval(gameLoopTimer); clearInterval(comboCountdownInterval); clearInterval(timerInterval);
-            stopBGM();
-            if (roomUnsubscribe) { roomUnsubscribe(); roomUnsubscribe = null; }
+            clearInterval(gameLoopTimer);
+            clearInterval(comboCountdownInterval);
+            clearInterval(timerInterval);
+            stopBGM(); // Hentikan musik saat ke menu
             document.getElementById('game-timer-display').classList.add('hidden');
             document.getElementById('gameplay-screen').classList.add('hidden');
             document.getElementById('evaluation-screen').classList.add('hidden');
@@ -1189,70 +1011,161 @@
             playTone(300, 'sine', 0.1);
         }
         
-        // --- LOGIKA GENERATOR SOAL MATEMATIKA ---
+        // --- LOGIKA GENERATOR SOAL MATEMATIKA DINAMIS BERDASARKAN KESULITAN ---
         function generateNewQuestion() {
-            let type, num1, num2; let realAnswer = 0; let newText = "";
+            let type, num1, num2;
+            let realAnswer = 0;
+            let newText = "";
+            // Loop untuk menjamin soal baru tidak sama dengan soal sebelumnya
             do {
                 if (comboModeActive) {
+                    // --- SOAL COMBO BERDASARKAN KESULITAN ---
                     if (currentDifficulty === 'beginner') {
-                        let a = Math.floor(Math.random() * 3) + 1; let b = Math.floor(Math.random() * 3); let c = Math.floor(Math.random() * 3);
-                        realAnswer = (a * b) + c; newText = `(${a} x ${b}) + ${c} = ...?`;
+                        // Beginner: Angka satuan murni, hasil <= 9
+                        let a = Math.floor(Math.random() * 3) + 1; // 1-3
+                        let b = Math.floor(Math.random() * 3);     // 0-2
+                        let c = Math.floor(Math.random() * 3);     // 0-2
+                        realAnswer = (a * b) + c;
+                        newText = `(${a} x ${b}) + ${c} = ...?`;
                     } else if (currentDifficulty === 'intermediate') {
-                        let a = Math.floor(Math.random() * 8) + 3; let b = Math.floor(Math.random() * 8) + 2; let c = Math.floor(Math.random() * 20) + 1;
-                        realAnswer = (a * b) + c; newText = `(${a} x ${b}) + ${c} = ...?`;
+                        // Intermediate: Angka satuan & puluhan, hasil <= 99
+                        let a = Math.floor(Math.random() * 8) + 3; // 3-10
+                        let b = Math.floor(Math.random() * 8) + 2; // 2-9
+                        let c = Math.floor(Math.random() * 20) + 1; // 1-20
+                        realAnswer = (a * b) + c;
+                        newText = `(${a} x ${b}) + ${c} = ...?`;
                     } else {
-                        let a = Math.floor(Math.random() * 15) + 10; let b = Math.floor(Math.random() * 15) + 5; let c = Math.floor(Math.random() * 100) + 10;
-                        realAnswer = (a * b) + c; newText = `(${a} x ${b}) + ${c} = ...?`;
+                        // Expert: Angka puluhan & ratusan, hasil s/d 500
+                        let a = Math.floor(Math.random() * 15) + 10; // 10-24
+                        let b = Math.floor(Math.random() * 15) + 5;  // 5-19
+                        let c = Math.floor(Math.random() * 100) + 10; // 10-109
+                        realAnswer = (a * b) + c;
+                        newText = `(${a} x ${b}) + ${c} = ...?`;
                     }
                 } else {
+                    // --- SOAL NORMAL BERDASARKAN KESULITAN ---
                     if (currentDifficulty === 'beginner') {
+                        // BEGINNER: Satuan (0-9)
                         type = Math.floor(Math.random() * 4);
-                        if (type === 0) { num1 = Math.floor(Math.random() * 6); num2 = Math.floor(Math.random() * (10 - num1)); realAnswer = num1 + num2; newText = `${num1} + ${num2} = ...?`; }
-                        else if (type === 1) { num1 = Math.floor(Math.random() * 10); num2 = Math.floor(Math.random() * (num1 + 1)); realAnswer = num1 - num2; newText = `${num1} - ${num2} = ...?`; }
-                        else if (type === 2) { num1 = Math.floor(Math.random() * 4); num2 = Math.floor(Math.random() * 3) + 1; realAnswer = num1 * num2; newText = `${num1} x ${num2} = ...?`; }
-                        else { let divisor = Math.floor(Math.random() * 4) + 1; let quotient = Math.floor(Math.random() * 3); realAnswer = quotient; newText = `${divisor * quotient} : ${divisor} = ...?`; }
+                        if (type === 0) { // +
+                            num1 = Math.floor(Math.random() * 6); // 0-5
+                            num2 = Math.floor(Math.random() * (10 - num1)); // agar hasil <= 9
+                            realAnswer = num1 + num2;
+                            newText = `${num1} + ${num2} = ...?`;
+                        } else if (type === 1) { // -
+                            num1 = Math.floor(Math.random() * 10); // 0-9
+                            num2 = Math.floor(Math.random() * (num1 + 1));
+                            realAnswer = num1 - num2;
+                            newText = `${num1} - ${num2} = ...?`;
+                        } else if (type === 2) { // *
+                            num1 = Math.floor(Math.random() * 4); // 0-3
+                            num2 = Math.floor(Math.random() * 3) + 1; // 1-3
+                            realAnswer = num1 * num2;
+                            newText = `${num1} x ${num2} = ...?`;
+                        } else { // :
+                            let divisor = Math.floor(Math.random() * 4) + 1; // 1-4
+                            let quotient = Math.floor(Math.random() * 3); // 0-2
+                            let dividend = divisor * quotient;
+                            realAnswer = quotient;
+                            newText = `${dividend} : ${divisor} = ...?`;
+                        }
                     } else if (currentDifficulty === 'intermediate') {
+                        // INTERMEDIATE: Campuran Satuan & Puluhan (10-99)
                         type = Math.floor(Math.random() * 4);
-                        if (type === 0) { num1 = Math.floor(Math.random() * 40) + 10; num2 = Math.floor(Math.random() * 40) + 10; realAnswer = num1 + num2; newText = `${num1} + ${num2} = ...?`; }
-                        else if (type === 1) { num1 = Math.floor(Math.random() * 80) + 20; num2 = Math.floor(Math.random() * (num1 - 5)) + 5; realAnswer = num1 - num2; newText = `${num1} - ${num2} = ...?`; }
-                        else if (type === 2) { num1 = Math.floor(Math.random() * 10) + 2; num2 = Math.floor(Math.random() * 8) + 2; realAnswer = num1 * num2; newText = `${num1} x ${num2} = ...?`; }
-                        else { let divisor = Math.floor(Math.random() * 8) + 2; let quotient = Math.floor(Math.random() * 9) + 2; realAnswer = quotient; newText = `${divisor * quotient} : ${divisor} = ...?`; }
+                        if (type === 0) { // + (Puluhan)
+                            num1 = Math.floor(Math.random() * 40) + 10; // 10-49
+                            num2 = Math.floor(Math.random() * 40) + 10; // 10-49
+                            realAnswer = num1 + num2;
+                            newText = `${num1} + ${num2} = ...?`;
+                        } else if (type === 1) { // - (Puluhan)
+                            num1 = Math.floor(Math.random() * 80) + 20; // 20-99
+                            num2 = Math.floor(Math.random() * (num1 - 5)) + 5;
+                            realAnswer = num1 - num2;
+                            newText = `${num1} - ${num2} = ...?`;
+                        } else if (type === 2) { // * (Puluhan/Satuan)
+                            num1 = Math.floor(Math.random() * 10) + 2; // 2-11
+                            num2 = Math.floor(Math.random() * 8) + 2;  // 2-9
+                            realAnswer = num1 * num2;
+                            newText = `${num1} x ${num2} = ...?`;
+                        } else { // : (Puluhan/Satuan)
+                            let divisor = Math.floor(Math.random() * 8) + 2; // 2-9
+                            let quotient = Math.floor(Math.random() * 9) + 2; // 2-10
+                            let dividend = divisor * quotient;
+                            realAnswer = quotient;
+                            newText = `${dividend} : ${divisor} = ...?`;
+                        }
                     } else {
+                        // EXPERT: Campuran Puluhan & Ratusan (100-500)
                         type = Math.floor(Math.random() * 4);
-                        if (type === 0) { num1 = Math.floor(Math.random() * 200) + 100; num2 = Math.floor(Math.random() * 150) + 50; realAnswer = num1 + num2; newText = `${num1} + ${num2} = ...?`; }
-                        else if (type === 1) { num1 = Math.floor(Math.random() * 400) + 100; num2 = Math.floor(Math.random() * (num1 - 50)) + 50; realAnswer = num1 - num2; newText = `${num1} - ${num2} = ...?`; }
-                        else if (type === 2) { num1 = Math.floor(Math.random() * 20) + 8; num2 = Math.floor(Math.random() * 12) + 4; realAnswer = num1 * num2; newText = `${num1} x ${num2} = ...?`; }
-                        else { let divisor = Math.floor(Math.random() * 15) + 4; let quotient = Math.floor(Math.random() * 15) + 5; realAnswer = quotient; newText = `${divisor * quotient} : ${divisor} = ...?`; }
+                        if (type === 0) { // + (Ratusan)
+                            num1 = Math.floor(Math.random() * 200) + 100; // 100-299
+                            num2 = Math.floor(Math.random() * 150) + 50;  // 50-199
+                            realAnswer = num1 + num2;
+                            newText = `${num1} + ${num2} = ...?`;
+                        } else if (type === 1) { // - (Ratusan)
+                            num1 = Math.floor(Math.random() * 400) + 100; // 100-499
+                            num2 = Math.floor(Math.random() * (num1 - 50)) + 50;
+                            realAnswer = num1 - num2;
+                            newText = `${num1} - ${num2} = ...?`;
+                        } else if (type === 2) { // * (Ratusan/Puluhan)
+                            num1 = Math.floor(Math.random() * 20) + 8; // 8-27
+                            num2 = Math.floor(Math.random() * 12) + 4; // 4-15
+                            realAnswer = num1 * num2;
+                            newText = `${num1} x ${num2} = ...?`;
+                        } else { // : (Ratusan/Puluhan)
+                            let divisor = Math.floor(Math.random() * 15) + 4; // 4-18
+                            let quotient = Math.floor(Math.random() * 15) + 5; // 5-19
+                            let dividend = divisor * quotient;
+                            realAnswer = quotient;
+                            newText = `${dividend} : ${divisor} = ...?`;
+                        }
                     }
                 }
             } while (newText === lastQuestionText);
             
-            lastQuestionText = newText; currentQuestion.answer = realAnswer; currentQuestion.text = newText;
+            lastQuestionText = newText;
+            currentQuestion.answer = realAnswer;
+            currentQuestion.text = newText;
+            // Generate 3 Pilihan Jawaban Pengecoh Berdasarkan Kesulitan
             let choicesValues = [realAnswer];
             while (choicesValues.length < 4) {
                 let fakeAnswer = 0;
-                if (currentDifficulty === 'beginner') fakeAnswer = Math.floor(Math.random() * 10);
-                else if (currentDifficulty === 'intermediate') fakeAnswer = Math.max(0, Math.min(99, realAnswer + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 10) + 1)));
-                else fakeAnswer = Math.max(0, Math.min(499, realAnswer + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 30) + 1)));
+                if (currentDifficulty === 'beginner') {
+                    fakeAnswer = Math.floor(Math.random() * 10); // Satuan (0-9)
+                } else if (currentDifficulty === 'intermediate') {
+                    let offset = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 10) + 1);
+                    fakeAnswer = Math.max(0, Math.min(99, realAnswer + offset)); // Puluhan
+                } else {
+                    let offset = (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 30) + 1);
+                    fakeAnswer = Math.max(0, Math.min(499, realAnswer + offset)); // Ratusan
+                }
                 if (!choicesValues.includes(fakeAnswer)) choicesValues.push(fakeAnswer);
             }
             choicesValues.sort(() => Math.random() - 0.5);
             currentQuestion.choices = [];
             choicesValues.forEach((val) => {
                 let pos = getSafeSpawnPosition();
-                currentQuestion.choices.push({ value: val, x: pos.x, y: pos.y, isGolden: (val === realAnswer && comboModeActive), angle: Math.random() * Math.PI * 2 });
+                currentQuestion.choices.push({
+                    value: val, x: pos.x, y: pos.y,
+                    isGolden: (val === realAnswer && comboModeActive), angle: Math.random() * Math.PI * 2
+                });
             });
             const probEl = document.getElementById('math-problem');
-            probEl.innerText = currentQuestion.text; probEl.classList.add('scale-105', 'text-white');
+            probEl.innerText = currentQuestion.text;
+            probEl.classList.add('scale-105', 'text-white');
             setTimeout(() => probEl.classList.remove('scale-105', 'text-white'), 150);
         }
         
         function getSafeSpawnPosition() {
-            const gridCols = canvasWidth / gridUnit; const gridRows = canvasHeight / gridUnit; let attempts = 0;
+            const gridCols = canvasWidth / gridUnit;
+            const gridRows = canvasHeight / gridUnit;
+            let attempts = 0;
+            
             while (attempts < 150) {
-                let rx = Math.floor(Math.random() * (gridCols - 4)) + 2; let ry = Math.floor(Math.random() * (gridRows - 4)) + 2;
+                let rx = Math.floor(Math.random() * (gridCols - 4)) + 2;
+                let ry = Math.floor(Math.random() * (gridRows - 4)) + 2;
                 let hitBody = p1.body.some(b => b.x === rx && b.y === ry);
-                if (gameMode === 2 || gameMode === 3) hitBody = hitBody || p2.body.some(b => b.x === rx && b.y === ry);
+                if (gameMode === 2) hitBody = hitBody || p2.body.some(b => b.x === rx && b.y === ry);
                 let hitFood = currentQuestion.choices.some(f => f.x === rx && f.y === ry);
                 if (!hitBody && !hitFood) return { x: rx, y: ry };
                 attempts++;
@@ -1260,29 +1173,43 @@
             return { x: Math.floor(Math.random() * 20) + 5, y: Math.floor(Math.random() * 12) + 4 };
         }
         
+        // --- SISTEM COMBO MODE ---
         function triggerComboMode(generateNew = true) {
             if (comboModeActive) return;
-            comboModeActive = true; playSfx('combo_trigger');
+            comboModeActive = true;
+            playSfx('combo_trigger');
             document.getElementById('combo-indicator').classList.remove('hidden');
-            document.getElementById('question-board').className = "bg-slate-900 border-4 border-amber-500 p-5 rounded-2xl shadow-2xl text-center relative overflow-hidden transition-all duration-300 combo-glow";
+            const qBoard = document.getElementById('question-board');
+            qBoard.className = "bg-slate-900 border-4 border-amber-500 p-5 rounded-2xl shadow-2xl text-center relative overflow-hidden transition-all duration-300 combo-glow";
             showFloatingMessage("⚡ COMBO ATTACK! SOAL EMAS DIMULAI!", "text-yellow-400");
-            comboTimeRemaining = 15; document.getElementById('combo-countdown').innerText = comboTimeRemaining + "s";
+            comboTimeRemaining = 15;
+            document.getElementById('combo-countdown').innerText = comboTimeRemaining + "s";
             comboCountdownInterval = setInterval(() => {
                 if (!isPaused) {
-                    comboTimeRemaining--; document.getElementById('combo-countdown').innerText = comboTimeRemaining + "s";
+                    comboTimeRemaining--;
+                    document.getElementById('combo-countdown').innerText = comboTimeRemaining + "s";
                     if (comboTimeRemaining <= 0) deactivateComboMode(true);
                 }
             }, 1000);
-            if (generateNew) { generateNewQuestion(); updateGameLoopSpeed(); }
+            if (generateNew) {
+                generateNewQuestion();
+                updateGameLoopSpeed();
+            }
         }
         function deactivateComboMode(generateNew = true) {
             if (!comboModeActive) return;
-            comboModeActive = false; clearInterval(comboCountdownInterval);
+            comboModeActive = false;
+            clearInterval(comboCountdownInterval);
             document.getElementById('combo-indicator').classList.add('hidden');
             document.getElementById('question-board').className = "bg-slate-900 border-2 border-indigo-500/40 p-5 rounded-2xl shadow-2xl text-center relative overflow-hidden transition-all duration-300";
-            consecutiveCorrect = 0; updateStreakStarsUI();
+            consecutiveCorrect = 0;
+            updateStreakStarsUI();
             showFloatingMessage("Waktu Combo Habis!", "text-slate-300");
-            if (generateNew) { generateNewQuestion(); updateGameLoopSpeed(); }
+            
+            if (generateNew) {
+                generateNewQuestion();
+                updateGameLoopSpeed();
+            }
         }
         
         // --- LOGIKA UPDATE POSISI & FISIKA GAME ---
@@ -1309,26 +1236,38 @@
                 else if (p1.dir === 'LEFT') headX1--;
                 else if (p1.dir === 'RIGHT') headX1++;
                 
-                if (headX1 < 0) headX1 = gridCols - 1; else if (headX1 >= gridCols) headX1 = 0;
-                if (headY1 < 0) headY1 = gridRows - 1; else if (headY1 >= gridRows) headY1 = 0;
+                if (headX1 < 0) headX1 = gridCols - 1;
+                else if (headX1 >= gridCols) headX1 = 0;
+                if (headY1 < 0) headY1 = gridRows - 1;
+                else if (headY1 >= gridRows) headY1 = 0;
                 let hitSelfP1 = p1.body.some((segment, idx) => idx !== 0 && segment.x === headX1 && segment.y === headY1);
-                if (hitSelfP1) { handleSnakeDamage(1, "Tabrakan Badan!"); return; }
-                
+                if (hitSelfP1) {
+                    handleSnakeDamage(1, "Tabrakan Badan!");
+                    return;
+                }
                 p1.body.unshift({ x: headX1, y: headY1 });
                 let p1Ate = false;
                 for (let i = 0; i < currentQuestion.choices.length; i++) {
                     let food = currentQuestion.choices[i];
                     if (headX1 === food.x && headY1 === food.y) {
-                        p1Ate = true; handleFoodInteraction(1, food); break;
+                        p1Ate = true;
+                        handleFoodInteraction(1, food);
+                        break;
                     }
                 }
                 if (!p1Ate) p1.body.pop();
-                if (p1.isSuper) { p1.superTimer--; if (p1.superTimer <= 0) p1.isSuper = false; }
-                if (p1.activeGhost) { p1.ghostTimer--; if (p1.ghostTimer <= 0) p1.activeGhost = false; }
-            }
+                if (p1.isSuper) {
+                    p1.superTimer--;
+                    if (p1.superTimer <= 0) p1.isSuper = false;
+                }
+                if (p1.activeGhost) {
+                    p1.ghostTimer--;
+                    if (p1.ghostTimer <= 0) p1.activeGhost = false;
+                }
+            } // Penutup blok if (!p1.stunned)
             
-            // --- PEMAIN 2 (VERSUS LOKAL / ONLINE) ---
-            if (gameMode === 2 || gameMode === 3) {
+            // --- PEMAIN 2 ---
+            if (gameMode === 2) {
                 if (p2.stunned) {
                     p2.stunTimer -= (baseSpeed / speedMultiplier);
                     if (p2.stunTimer <= 0) {
@@ -1344,98 +1283,157 @@
                     else if (p2.dir === 'DOWN') headY2++;
                     else if (p2.dir === 'LEFT') headX2--;
                     else if (p2.dir === 'RIGHT') headX2++;
-                    
-                    if (headX2 < 0) headX2 = gridCols - 1; else if (headX2 >= gridCols) headX2 = 0;
-                    if (headY2 < 0) headY2 = gridRows - 1; else if (headY2 >= gridRows) headY2 = 0;
+                    if (headX2 < 0) headX2 = gridCols - 1;
+                    else if (headX2 >= gridCols) headX2 = 0;
+                    if (headY2 < 0) headY2 = gridRows - 1;
+                    else if (headY2 >= gridRows) headY2 = 0;
                     let hitSelfP2 = p2.body.some((segment, idx) => idx !== 0 && segment.x === headX2 && segment.y === headY2);
-                    if (hitSelfP2) { handleSnakeDamage(2, "P2 Tabrak Badan!"); return; }
-                    
+                    if (hitSelfP2) {
+                        handleSnakeDamage(2, "P2 Tabrak Badan!");
+                        return;
+                    }
                     p2.body.unshift({ x: headX2, y: headY2 });
                     let p2Ate = false;
                     for (let i = 0; i < currentQuestion.choices.length; i++) {
                         let food = currentQuestion.choices[i];
                         if (headX2 === food.x && headY2 === food.y) {
-                            p2Ate = true; handleFoodInteraction(2, food); break;
+                            p2Ate = true;
+                            handleFoodInteraction(2, food);
+                            break;
                         }
                     }
                     if (!p2Ate) p2.body.pop();
-                    if (p2.activeGhost) { p2.ghostTimer--; if (p2.ghostTimer <= 0) p2.activeGhost = false; }
-                }
+                    if (p2.activeGhost) {
+                        p2.ghostTimer--;
+                        if (p2.ghostTimer <= 0) p2.activeGhost = false;
+                    }
+                } // Penutup blok if (!p2.stunned)
                 
-                // SISTEM TABRAKAN ANTAR PEMAIN
-                let p1Head = p1.body[0]; let p2Head = p2.body[0];
+                // --- SISTEM TABRAKAN ANTAR PEMAIN ---
+                let p1Head = p1.body[0];
+                let p2Head = p2.body[0];
+                // 1. Adu Kepala
                 let isHeadToHead = (!p1.activeGhost && !p2.activeGhost) && (p1Head.x === p2Head.x && p1Head.y === p2Head.y);
+                
+                // 2. Tabrak Badan
                 let p1HitsP2Body = !p1.activeGhost && p2.body.some((seg, idx) => idx !== 0 && seg.x === p1Head.x && seg.y === p1Head.y);
                 let p2HitsP1Body = !p2.activeGhost && p1.body.some((seg, idx) => idx !== 0 && seg.x === p2Head.x && seg.y === p2Head.y);
-                
                 if (isHeadToHead) {
-                    handleSnakeDamage(1, "Adu Kepala!"); handleSnakeDamage(2, "Adu Kepala!");
+                    handleSnakeDamage(1, "Adu Kepala!");
+                    handleSnakeDamage(2, "Adu Kepala!");
                 } else {
-                    if (p1HitsP2Body) handleSnakeDamage(1, "Nabrak Badan Lawan!");
-                    if (p2HitsP1Body) handleSnakeDamage(2, "Nabrak Badan Lawan!");
+                    if (p1HitsP2Body) {
+                        handleSnakeDamage(1, "Nabrak Badan Lawan!");
+                    }
+                    if (p2HitsP1Body) {
+                        handleSnakeDamage(2, "Nabrak Badan Lawan!");
+                    }
                 }
             }
         }
         
+        // --- INTERAKSI MAKANAN & SKOR ---
         function handleFoodInteraction(playerNum, foodEaten) {
             const isCorrect = (foodEaten.value === currentQuestion.answer);
             if (isCorrect) {
                 playSfx('correct');
-                let pointsEarned = 10; let isComboAnswer = comboModeActive;
+                let pointsEarned = 10;
+                let isComboAnswer = comboModeActive;
+                
                 if (isComboAnswer) {
                     pointsEarned = 50;
                     if (playerNum === 1) {
                         p1.isSuper = true; p1.superTimer = Math.floor(5000 / (baseSpeed / speedMultiplier));
-                        if (p1.body.length > 4) p1.body.pop(); p1.lives++; updateHeartsUI(); playSfx('powerup');
+                        if (p1.body.length > 4) p1.body.pop(); // Bonus perpendek ular
+                        p1.lives++; // Tambahan HEALTH POINT Cadangan
+                        updateHeartsUI();
+                        playSfx('powerup');
                     } else {
-                        p2.lives++; updateP2HeartsUI(); playSfx('powerup');
+                        p2.lives++; // Tambahan HEALTH POINT Cadangan P2
+                        updateP2HeartsUI();
+                        playSfx('powerup');
                     }
                 }
                 if (playerNum === 1) {
-                    p1.score = Math.min(500, p1.score + pointsEarned); document.getElementById('p1-score').innerText = p1.score;
-                    if (isComboAnswer && gameMode === 1) showFloatingMessage(`⚡ +50 Poin & HEALTH POINT +1!`, "text-cyan-300");
-                    else if (!isComboAnswer) showFloatingMessage(`+${pointsEarned} Jawaban Benar!`, "text-green-400");
+                    p1.score += pointsEarned;
+                    if (p1.score >= 500) p1.score = 500;
+                    document.getElementById('p1-score').innerText = p1.score;
+                    
+                    if (isComboAnswer && gameMode === 1) {
+                        showFloatingMessage(`⚡ +50 Poin & HEALTH POINT +1!`, "text-cyan-300");
+                    } else if (!isComboAnswer) {
+                        showFloatingMessage(`+${pointsEarned} Jawaban Benar!`, "text-green-400");
+                    }
                 } else {
-                    p2.score = Math.min(500, p2.score + pointsEarned); document.getElementById('p2-score').innerText = p2.score;
-                    if (!isComboAnswer) showFloatingMessage(`P2 +${pointsEarned} Benar!`, "text-cyan-400");
+                    p2.score += pointsEarned;
+                    if (p2.score >= 500) p2.score = 500;
+                    document.getElementById('p2-score').innerText = p2.score;
+                    
+                    if (!isComboAnswer) {
+                        showFloatingMessage(`P2 +${pointsEarned} Benar!`, "text-cyan-400");
+                    }
                 }
-                
+                // Sistem Combo Rantai (Berlaku untuk 1P maupun 2P)
                 if (!isComboAnswer) {
-                    consecutiveCorrect++; updateStreakStarsUI();
-                    if (consecutiveCorrect >= 3) triggerComboMode(false);
+                    consecutiveCorrect++;
+                    updateStreakStarsUI();
+                    if (consecutiveCorrect >= 3) {
+                        triggerComboMode(false); // Mencegah double render
+                    }
                 }
-                if (p1.score >= 500 || p2.score >= 500) { endGame(); return; }
+                // Kondisi Menang 500 (1P atau 2P)
+                if (p1.score >= 500 || p2.score >= 500) {
+                    endGame();
+                    return;
+                }
+                // Kecepatan meningkat bertahap berdasarkan tingkat kesulitan yang dipilih
+                let speedInc = 0.005; // Beginner (tidak signifikan)
+                if (currentDifficulty === 'intermediate') {
+                    speedInc = 0.015; // Lumayan signifikan
+                } else if (currentDifficulty === 'expert') {
+                    speedInc = 0.03;  // Cepat & signifikan
+                }
                 
-                let speedInc = currentDifficulty === 'intermediate' ? 0.015 : (currentDifficulty === 'expert' ? 0.03 : 0.005);
-                speedMultiplier = Math.min(speedMultiplier + speedInc, 2.5); updateGameLoopSpeed();
+                speedMultiplier = Math.min(speedMultiplier + speedInc, 2.5);
+                updateGameLoopSpeed();
                 
-                if ((gameMode === 2 || gameMode === 3) && isComboAnswer) {
-                    if (playerNum === 1) { p1.activeGhost = true; p1.ghostTimer = Math.floor(5000 / (baseSpeed / speedMultiplier)); showFloatingMessage("⚡ HP +1 & GHOST MODE!", "text-pink-400"); }
-                    else { p2.activeGhost = true; p2.ghostTimer = Math.floor(5000 / (baseSpeed / speedMultiplier)); showFloatingMessage("⚡ P2 HP +1 & GHOST MODE!", "text-pink-400"); }
+                // Ghost Mode untuk Versus
+                if (gameMode === 2 && isComboAnswer) {
+                    if (playerNum === 1) {
+                        p1.activeGhost = true; p1.ghostTimer = Math.floor(5000 / (baseSpeed / speedMultiplier));
+                        showFloatingMessage("⚡ HP +1 & GHOST MODE!", "text-pink-400");
+                    } else {
+                        p2.activeGhost = true; p2.ghostTimer = Math.floor(5000 / (baseSpeed / speedMultiplier));
+                        showFloatingMessage("⚡ P2 HP +1 & GHOST MODE!", "text-pink-400");
+                    }
                 }
                 generateNewQuestion();
             } else {
                 playSfx('wrong');
                 incorrectList.push({ text: currentQuestion.text, userChoice: foodEaten.value, correctAnswer: currentQuestion.answer });
-                consecutiveCorrect = 0; updateStreakStarsUI();
-                if (comboModeActive) deactivateComboMode(false);
-                
+                consecutiveCorrect = 0;
+                updateStreakStarsUI();
+                if (comboModeActive) deactivateComboMode(false); // Mencegah double render
                 if (playerNum === 1) {
-                    if (gameMode === 2 || gameMode === 3) {
+                    if (gameMode === 2) { // Terapkan pembekuan (stun) hanya di Mode Versus
                         p1.stunned = true; p1.stunTimer = 3000;
                         const p1StunLabel = document.getElementById('p1-stunned-label');
                         if (p1StunLabel) p1StunLabel.classList.remove('hidden');
-                        p1.lives--; updateHeartsUI();
-                        showFloatingMessage(`P1 Salah! HEALTH POINT -1 & BEKU 3s!`, "text-amber-400");
-                    } else {
-                        p1.lives--; updateHeartsUI();
+                        p1.lives--;
+                        updateHeartsUI();
+                        showFloatingMessage(`Salah! HEALTH POINT -1 & BEKU 3s!`, "text-amber-400");
+                    } else { // Mode Single Player tetap biasa
+                        p1.lives--;
+                        updateHeartsUI();
                         showFloatingMessage(`Oops! Salah: ${foodEaten.value}`, "text-red-400");
                     }
                     if (p1.lives <= 0) { endGame(); return; }
                 } else {
                     p2.stunned = true; p2.stunTimer = 3000;
                     document.getElementById('p2-stunned-label').classList.remove('hidden');
-                    p2.lives--; updateP2HeartsUI();
+                    
+                    p2.lives--;
+                    updateP2HeartsUI();
                     showFloatingMessage(`P2 Salah! HEALTH POINT -1 & BEKU 3s!`, "text-amber-400");
                     if (p2.lives <= 0) { endGame(); return; }
                 }
@@ -1444,15 +1442,19 @@
         }
         function handleSnakeDamage(playerNum, message) {
             playSfx('hit');
+            
             if (playerNum === 1) {
-                p1.lives--; updateHeartsUI(); showFloatingMessage(`💥 ${message} HEALTH POINT -1`, "text-rose-500");
+                p1.lives--; updateHeartsUI();
+                showFloatingMessage(`💥 ${message} HEALTH POINT -1`, "text-rose-500");
                 let safeHead = getSafeSpawnPosition();
                 p1.body = [{x: safeHead.x, y: safeHead.y}, {x: safeHead.x - 1, y: safeHead.y}, {x: safeHead.x - 2, y: safeHead.y}];
                 p1.dir = 'RIGHT'; p1.nextDir = 'RIGHT';
                 consecutiveCorrect = 0; updateStreakStarsUI();
                 if (p1.lives <= 0) endGame();
             } else {
-                p2.lives--; updateP2HeartsUI(); showFloatingMessage(`💥 ${message} HEALTH POINT P2 -1`, "text-rose-500");
+                p2.lives--; updateP2HeartsUI();
+                showFloatingMessage(`💥 ${message} HEALTH POINT P2 -1`, "text-rose-500");
+                
                 let safeHead = getSafeSpawnPosition();
                 p2.body = [{x: safeHead.x, y: safeHead.y}, {x: safeHead.x + 1, y: safeHead.y}, {x: safeHead.x + 2, y: safeHead.y}];
                 p2.dir = 'LEFT'; p2.nextDir = 'LEFT';
@@ -1461,99 +1463,56 @@
             }
         }
         
-        // --- SISTEM KONTROL ULAR (PATEN 1P, 2P & ONLINE) ---
+        // --- SISTEM KONTROL ULAR (PATEN 1P & 2P) ---
         window.addEventListener('keydown', (e) => {
             if (!gameActive || isPaused) return;
             const key = e.key.toUpperCase();
             
             if (gameMode === 1) {
+                // KONTROL PEMAIN 1 (BEBAS PANAH ARAH ATAU WASD)
                 if ((key === 'ARROWUP' || key === 'W') && p1.dir !== 'DOWN') { p1.nextDir = 'UP'; e.preventDefault(); }
                 else if ((key === 'ARROWDOWN' || key === 'S') && p1.dir !== 'UP') { p1.nextDir = 'DOWN'; e.preventDefault(); }
                 else if ((key === 'ARROWLEFT' || key === 'A') && p1.dir !== 'RIGHT') { p1.nextDir = 'LEFT'; e.preventDefault(); }
                 else if ((key === 'ARROWRIGHT' || key === 'D') && p1.dir !== 'LEFT') { p1.nextDir = 'RIGHT'; e.preventDefault(); }
             } else if (gameMode === 2) {
+                // KONTROL PATEN PEMAIN 1 (WASD HANYA)
                 if (key === 'W' && p1.dir !== 'DOWN') { p1.nextDir = 'UP'; e.preventDefault(); }
                 else if (key === 'S' && p1.dir !== 'UP') { p1.nextDir = 'DOWN'; e.preventDefault(); }
                 else if (key === 'A' && p1.dir !== 'RIGHT') { p1.nextDir = 'LEFT'; e.preventDefault(); }
                 else if (key === 'D' && p1.dir !== 'LEFT') { p1.nextDir = 'RIGHT'; e.preventDefault(); }
-                
+                // KONTROL PATEN PEMAIN 2 (PANAH ARAH HANYA)
                 if (key === 'ARROWUP' && p2.dir !== 'DOWN') { p2.nextDir = 'UP'; e.preventDefault(); }
                 else if (key === 'ARROWDOWN' && p2.dir !== 'UP') { p2.nextDir = 'DOWN'; e.preventDefault(); }
                 else if (key === 'ARROWLEFT' && p2.dir !== 'RIGHT') { p2.nextDir = 'LEFT'; e.preventDefault(); }
                 else if (key === 'ARROWRIGHT' && p2.dir !== 'LEFT') { p2.nextDir = 'RIGHT'; e.preventDefault(); }
-            } else if (gameMode === 3) {
-                if (isOnlineHost) { // Host kontrolnya di WASD untuk P1
-                    if (key === 'W' && p1.dir !== 'DOWN') { p1.nextDir = 'UP'; e.preventDefault(); }
-                    else if (key === 'S' && p1.dir !== 'UP') { p1.nextDir = 'DOWN'; e.preventDefault(); }
-                    else if (key === 'A' && p1.dir !== 'RIGHT') { p1.nextDir = 'LEFT'; e.preventDefault(); }
-                    else if (key === 'D' && p1.dir !== 'LEFT') { p1.nextDir = 'RIGHT'; e.preventDefault(); }
-                } else if (isOnlineGuest) { // Guest kontrolnya di Panah Arah untuk P2
-                    let newDir = p2.nextDir;
-                    if (key === 'ARROWUP' && p2.dir !== 'DOWN') { newDir = 'UP'; e.preventDefault(); }
-                    else if (key === 'ARROWDOWN' && p2.dir !== 'UP') { newDir = 'DOWN'; e.preventDefault(); }
-                    else if (key === 'ARROWLEFT' && p2.dir !== 'RIGHT') { newDir = 'LEFT'; e.preventDefault(); }
-                    else if (key === 'ARROWRIGHT' && p2.dir !== 'LEFT') { newDir = 'RIGHT'; e.preventDefault(); }
-                    
-                    if (newDir !== p2.nextDir) {
-                        p2.nextDir = newDir;
-                        // Kirim Input ke Cloud
-                        const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), onlineRoomId);
-                        window.fbUpdateDoc(roomRef, { guestInput: newDir }).catch(e => console.error(e));
-                    }
-                }
             }
         });
-        
         window.addEventListener('touchstart', (e) => {
             if (!gameActive || isPaused) return;
-            touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
         }, { passive: true });
-        
         window.addEventListener('touchmove', (e) => {
             if (!gameActive || isPaused || touchControlMode !== 'SWIPE') return;
             let diffX = e.touches[0].clientX - touchStartX;
             let diffY = e.touches[0].clientY - touchStartY;
-            
-            let targetSnake = (gameMode === 3 && isOnlineGuest) ? p2 : p1;
-            let newDir = targetSnake.nextDir;
-
             if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (diffX > 40 && targetSnake.dir !== 'LEFT') newDir = 'RIGHT';
-                else if (diffX < -40 && targetSnake.dir !== 'RIGHT') newDir = 'LEFT';
+                if (diffX > 40 && p1.dir !== 'LEFT') p1.nextDir = 'RIGHT';
+                else if (diffX < -40 && p1.dir !== 'RIGHT') p1.nextDir = 'LEFT';
             } else {
-                if (diffY > 40 && targetSnake.dir !== 'UP') newDir = 'DOWN';
-                else if (diffY < -40 && targetSnake.dir !== 'DOWN') newDir = 'UP';
-            }
-            
-            if (newDir !== targetSnake.nextDir) {
-                targetSnake.nextDir = newDir;
-                if (gameMode === 3 && isOnlineGuest) {
-                    const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), onlineRoomId);
-                    window.fbUpdateDoc(roomRef, { guestInput: newDir }).catch(e => console.error(e));
-                }
+                if (diffY > 40 && p1.dir !== 'UP') p1.nextDir = 'DOWN';
+                else if (diffY < -40 && p1.dir !== 'DOWN') p1.nextDir = 'UP';
             }
         }, { passive: true });
         
         function handleVirtualDir(dir) {
             if (isPaused) return;
-            let targetSnake = (gameMode === 3 && isOnlineGuest) ? p2 : p1;
-            let newDir = targetSnake.nextDir;
-            
-            if (dir === 'UP' && targetSnake.dir !== 'DOWN') newDir = 'UP';
-            if (dir === 'DOWN' && targetSnake.dir !== 'UP') newDir = 'DOWN';
-            if (dir === 'LEFT' && targetSnake.dir !== 'RIGHT') newDir = 'LEFT';
-            if (dir === 'RIGHT' && targetSnake.dir !== 'LEFT') newDir = 'RIGHT';
-            
-            if (newDir !== targetSnake.nextDir) {
-                targetSnake.nextDir = newDir;
-                if (gameMode === 3 && isOnlineGuest) {
-                    const roomRef = window.fbDoc(window.fbCollection(window.fbDb, 'artifacts', window.fbAppId, 'public', 'data', 'rooms'), onlineRoomId);
-                    window.fbUpdateDoc(roomRef, { guestInput: newDir }).catch(e => console.error(e));
-                }
-            }
+            if (dir === 'UP' && p1.dir !== 'DOWN') p1.nextDir = 'UP';
+            if (dir === 'DOWN' && p1.dir !== 'UP') p1.nextDir = 'DOWN';
+            if (dir === 'LEFT' && p1.dir !== 'RIGHT') p1.nextDir = 'LEFT';
+            if (dir === 'RIGHT' && p1.dir !== 'LEFT') p1.nextDir = 'RIGHT';
             playTone(550, 'sine', 0.03);
         }
-        
         const btnToggleJoystick = document.getElementById('btn-toggle-joystick');
         btnToggleJoystick.addEventListener('click', () => {
             if (touchControlMode === 'SWIPE') {
@@ -1567,38 +1526,69 @@
             }
             playTone(500, 'sine', 0.05);
         });
-
+        
+        // --- GRAPHICS RENDERING ENGINE ---
         function drawGame() {
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+            // Background Papan Catur Neon Bercahaya Transparan
             for (let x = 0; x < canvasWidth; x += gridUnit) {
                 for (let y = 0; y < canvasHeight; y += gridUnit) {
-                    if (((x / gridUnit) + (y / gridUnit)) % 2 === 0) ctx.fillStyle = 'rgba(6, 182, 212, 0.07)';
-                    else ctx.fillStyle = 'rgba(244, 63, 94, 0.04)';
+                    if (((x / gridUnit) + (y / gridUnit)) % 2 === 0) {
+                        ctx.fillStyle = 'rgba(6, 182, 212, 0.07)'; // Cyber Cyan hint
+                    } else {
+                        ctx.fillStyle = 'rgba(244, 63, 94, 0.04)'; // Cyber Pink hint
+                    }
                     ctx.fillRect(x, y, gridUnit, gridUnit);
                 }
             }
             if (comboModeActive) {
-                ctx.fillStyle = 'rgba(245, 158, 11, 0.15)'; ctx.fillRect(0, 0, canvasWidth, canvasHeight);
-                ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)'; ctx.lineWidth = 3; ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
+                ctx.fillStyle = 'rgba(245, 158, 11, 0.15)';
+                ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+                ctx.strokeStyle = 'rgba(245, 158, 11, 0.5)';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
             }
             
             currentQuestion.choices.forEach(food => {
-                const cx = food.x * gridUnit + gridUnit / 2; const cy = food.y * gridUnit + gridUnit / 2;
-                const pulse = Math.sin(Date.now() / 150) * 2; const radius = (gridUnit / 2) + pulse;
-                ctx.save(); ctx.shadowBlur = 12; ctx.shadowColor = '#ff007f'; ctx.fillStyle = '#ff007f';
-                ctx.beginPath(); ctx.arc(cx, cy, radius, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#39ff14'; ctx.beginPath(); ctx.ellipse(cx + 2, cy - radius - 1, 2, 4, Math.PI / 4, 0, Math.PI * 2); ctx.fill();
-                ctx.restore(); ctx.save();
-                ctx.fillStyle = '#ffffff'; ctx.shadowColor = '#000000'; ctx.shadowBlur = 4;
-                ctx.font = 'bold 12px Nunito'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                const cx = food.x * gridUnit + gridUnit / 2;
+                const cy = food.y * gridUnit + gridUnit / 2;
+                const pulse = Math.sin(Date.now() / 150) * 2;
+                const radius = (gridUnit / 2) + pulse;
+                ctx.save();
+                ctx.shadowBlur = 12;
+                ctx.shadowColor = '#ff007f';
+                ctx.fillStyle = '#ff007f'; // Neon Hot Pink Apple
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#39ff14'; // Neon Green Leaf
+                ctx.beginPath();
+                ctx.ellipse(cx + 2, cy - radius - 1, 2, 4, Math.PI / 4, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+                ctx.save();
+                ctx.fillStyle = '#ffffff';
+                ctx.shadowColor = '#000000';
+                ctx.shadowBlur = 4;
+                ctx.font = 'bold 12px Nunito';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
                 const textWidth = ctx.measureText(food.value).width;
-                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'; ctx.fillRect(cx - (textWidth/2) - 4, cy - 8, textWidth + 8, 16);
-                ctx.fillStyle = '#ffffff'; ctx.font = 'bold 13px Nunito'; ctx.fillText(food.value, cx, cy + 1); ctx.restore();
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+                ctx.fillRect(cx - (textWidth/2) - 4, cy - 8, textWidth + 8, 16);
+                
+                ctx.fillStyle = '#ffffff'; 
+                ctx.font = 'bold 13px Nunito';
+                ctx.fillText(food.value, cx, cy + 1);
+                ctx.restore();
             });
             
             p1.body.forEach((segment, idx) => {
-                const sx = segment.x * gridUnit; const sy = segment.y * gridUnit; ctx.save();
-                if (p1.stunned && Math.floor(Date.now() / 200) % 2 === 0) {
+                const sx = segment.x * gridUnit;
+                const sy = segment.y * gridUnit;
+                ctx.save();
+                if (p1.stunned && Math.floor(Date.now() / 200) % 2 === 0) { // Efek kedap-kedip abu-abu saat membeku
                     ctx.fillStyle = '#94a3b8'; ctx.shadowColor = '#64748b'; ctx.shadowBlur = 8;
                 } else if (p1.isSuper && Math.floor(Date.now() / 100) % 2 === 0) {
                     ctx.fillStyle = '#00ffff'; ctx.shadowColor = '#00ffff'; ctx.shadowBlur = 15;
@@ -1607,7 +1597,8 @@
                 }
                 if (idx === 0) {
                     ctx.beginPath(); ctx.arc(sx + gridUnit / 2, sy + gridUnit / 2, gridUnit / 2 + 1, 0, Math.PI * 2); ctx.fill();
-                    ctx.fillStyle = '#000000'; const eyeRadius = 2.5;
+                    ctx.fillStyle = '#000000';
+                    const eyeRadius = 2.5;
                     if (p1.dir === 'RIGHT') {
                         ctx.beginPath(); ctx.arc(sx + 13, sy + 6, eyeRadius, 0, Math.PI * 2); ctx.fill();
                         ctx.beginPath(); ctx.arc(sx + 13, sy + 14, eyeRadius, 0, Math.PI * 2); ctx.fill();
@@ -1621,20 +1612,27 @@
                         ctx.beginPath(); ctx.arc(sx + 6, sy + 13, eyeRadius, 0, Math.PI * 2); ctx.fill();
                         ctx.beginPath(); ctx.arc(sx + 14, sy + 13, eyeRadius, 0, Math.PI * 2); ctx.fill();
                     }
-                } else { ctx.beginPath(); ctx.arc(sx + gridUnit / 2, sy + gridUnit / 2, gridUnit / 2 - 1, 0, Math.PI * 2); ctx.fill(); }
+                } else {
+                    ctx.beginPath(); ctx.arc(sx + gridUnit / 2, sy + gridUnit / 2, gridUnit / 2 - 1, 0, Math.PI * 2); ctx.fill();
+                }
                 ctx.restore();
             });
             
-            if (gameMode === 2 || gameMode === 3) {
+            if (gameMode === 2) {
                 p2.body.forEach((segment, idx) => {
-                    const sx = segment.x * gridUnit; const sy = segment.y * gridUnit; ctx.save();
+                    const sx = segment.x * gridUnit;
+                    const sy = segment.y * gridUnit;
+                    ctx.save();
                     if (p2.stunned && Math.floor(Date.now() / 200) % 2 === 0) {
                         ctx.fillStyle = '#94a3b8'; ctx.shadowColor = '#64748b';
-                    } else { ctx.fillStyle = p2.color; ctx.shadowColor = p2.color; }
+                    } else {
+                        ctx.fillStyle = p2.color; ctx.shadowColor = p2.color;
+                    }
                     ctx.shadowBlur = 8;
                     if (idx === 0) {
                         ctx.beginPath(); ctx.arc(sx + gridUnit / 2, sy + gridUnit / 2, gridUnit / 2 + 1, 0, Math.PI * 2); ctx.fill();
-                        ctx.fillStyle = '#ffffff'; const eyeRadius = 2.5;
+                        ctx.fillStyle = '#ffffff';
+                        const eyeRadius = 2.5;
                         if (p2.dir === 'RIGHT') {
                             ctx.beginPath(); ctx.arc(sx + 13, sy + 6, eyeRadius, 0, Math.PI * 2); ctx.fill();
                             ctx.beginPath(); ctx.arc(sx + 13, sy + 14, eyeRadius, 0, Math.PI * 2); ctx.fill();
@@ -1648,33 +1646,45 @@
                             ctx.beginPath(); ctx.arc(sx + 6, sy + 13, eyeRadius, 0, Math.PI * 2); ctx.fill();
                             ctx.beginPath(); ctx.arc(sx + 14, sy + 13, eyeRadius, 0, Math.PI * 2); ctx.fill();
                         }
-                    } else { ctx.beginPath(); ctx.arc(sx + gridUnit / 2, sy + gridUnit / 2, gridUnit / 2 - 1, 0, Math.PI * 2); ctx.fill(); }
+                    } else {
+                        ctx.beginPath(); ctx.arc(sx + gridUnit / 2, sy + gridUnit / 2, gridUnit / 2 - 1, 0, Math.PI * 2); ctx.fill();
+                    }
                     ctx.restore();
                 });
             }
         }
         
+        // --- UI INTERAKTIF ---
+        // Sinkronisasi data HP Pemain 1
         function updateHeartsUI() {
-            const container = document.getElementById('p1-hearts'); container.innerHTML = '';
+            const container = document.getElementById('p1-hearts');
+            container.innerHTML = '';
+            // Render hingga jumlah nyawa sesungguhnya (agar nyawa ekstra bisa terlihat)
             const total = Math.max(5, p1.lives); 
             for (let i = 0; i < total; i++) {
                 const heart = document.createElement('i');
-                if (i < p1.lives) heart.className = "fa-solid fa-heart text-pink-500 animate-pulse"; else heart.className = "fa-regular fa-heart text-slate-800";
+                if (i < p1.lives) heart.className = "fa-solid fa-heart text-pink-500 animate-pulse";
+                else heart.className = "fa-regular fa-heart text-slate-800";
                 container.appendChild(heart);
             }
         }
+        // Sinkronisasi data HP Pemain 2
         function updateP2HeartsUI() {
-            if (gameMode !== 2 && gameMode !== 3) return;
-            const container = document.getElementById('p2-hearts'); container.innerHTML = '';
+            if (gameMode !== 2) return;
+            const container = document.getElementById('p2-hearts');
+            container.innerHTML = '';
+            // Render hingga jumlah nyawa sesungguhnya (agar nyawa ekstra bisa terlihat)
             const total = Math.max(5, p2.lives);
             for (let i = 0; i < total; i++) {
                 const heart = document.createElement('i');
-                if (i < p2.lives) heart.className = "fa-solid fa-heart text-pink-500 animate-pulse"; else heart.className = "fa-regular fa-heart text-slate-800";
+                if (i < p2.lives) heart.className = "fa-solid fa-heart text-pink-500 animate-pulse";
+                else heart.className = "fa-regular fa-heart text-slate-800";
                 container.appendChild(heart);
             }
         }
         function updateStreakStarsUI() {
-            const container = document.getElementById('streak-stars'); container.innerHTML = '';
+            const container = document.getElementById('streak-stars');
+            container.innerHTML = '';
             for (let i = 0; i < 3; i++) {
                 const star = document.createElement('i');
                 if (i < consecutiveCorrect) star.className = "fa-solid fa-star text-yellow-400 text-lg scale-110 drop-shadow-md animate-bounce";
@@ -1686,117 +1696,148 @@
             const msg = document.getElementById('game-message');
             msg.innerText = text;
             msg.className = `absolute pointer-events-none transform scale-100 opacity-100 transition-all duration-300 font-fredoka text-md md:text-lg text-center z-20 bg-slate-900/95 border border-slate-700 px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-2 ${colorClass}`;
+            
             setTimeout(() => {
                 msg.className = "absolute pointer-events-none transform scale-0 opacity-0 transition-all duration-300 font-fredoka text-lg text-center z-20 bg-slate-900/90 border border-amber-500/50 px-6 py-3 rounded-full text-yellow-300 shadow-2xl flex items-center gap-2";
             }, 1800);
         }
         
+        // --- EVALUASI EDUTECH & GAME OVER ---
         function endGame() {
             gameActive = false;
-            clearInterval(gameLoopTimer); clearInterval(comboCountdownInterval); clearInterval(timerInterval);
-            stopBGM(); playSfx('gameover');
-            
+            clearInterval(gameLoopTimer);
+            clearInterval(comboCountdownInterval);
+            clearInterval(timerInterval);
+            stopBGM(); // Hentikan BGM saat Game Over
+            playSfx('gameover');
             const m = Math.floor(elapsedSeconds / 60).toString().padStart(2, '0');
             const s = (elapsedSeconds % 60).toString().padStart(2, '0');
-            const timeString = `${m}:${s}`; const certTimeString = `${m} Menit ${s} Detik`;
+            const timeString = `${m}:${s}`;
+            const certTimeString = `${m} Menit ${s} Detik`;
             if (p1.score > highScore) {
-                highScore = p1.score; localStorage.setItem('math_snake_highscore', highScore); document.getElementById('high-score-header').innerText = highScore;
+                highScore = p1.score;
+                localStorage.setItem('math_snake_highscore', highScore);
+                document.getElementById('high-score-header').innerText = highScore;
             }
             document.getElementById('gameplay-screen').classList.add('hidden');
             document.getElementById('evaluation-screen').classList.remove('hidden');
             let difficultyLabel = currentDifficulty.toUpperCase();
-            
-            if (gameMode === 2 || gameMode === 3) {
+            if (gameMode === 2) {
                 document.getElementById('eval-title').innerText = "Pertandingan Selesai!";
                 document.getElementById('eval-final-score').innerText = Math.max(p1.score, p2.score);
                 
                 let winnerText = "";
-                let P1Title = isOnlineGuest ? "Lawan (P1)" : studentName;
-                let P2Title = isOnlineHost ? "Lawan (P2)" : student2Name;
-                
                 if (p2.lives <= 0) {
-                    winnerText = `Lawan KO! ${P1Title} Menang! 🏆`;
-                    currentWinnerName = studentName; currentWinnerClass = studentClass;
-                    currentCertReason = `Atas keberhasilan luar biasa memenangkan Mode Tanding Tingkat ${difficultyLabel} dengan membuat lawan kehabisan HEALTH POINT (Knock Out)!`;
+                    winnerText = `Lawan KO! ${studentName} Menang! 🏆`;
+                    currentWinnerName = studentName;
+                    currentWinnerClass = studentClass;
+                    currentCertReason = `Atas keberhasilan luar biasa memenangkan Mode Tanding (Versus) Tingkat ${difficultyLabel} dengan mengalahkan lawan hingga kehabisan HEALTH POINT (Knock Out)!`;
                     currentCertBadge = `KEMENANGAN MUTLAK [${difficultyLabel}]: LAWAN KO!`;
                 } else if (p1.lives <= 0) {
-                    winnerText = `Lawan KO! ${P2Title} Menang! 🏆`;
-                    currentWinnerName = student2Name; currentWinnerClass = student2Class;
-                    currentCertReason = `Atas keberhasilan luar biasa memenangkan Mode Tanding Tingkat ${difficultyLabel} dengan membuat lawan kehabisan HEALTH POINT (Knock Out)!`;
+                    winnerText = `Lawan KO! ${student2Name} Menang! 🏆`;
+                    currentWinnerName = student2Name;
+                    currentWinnerClass = student2Class;
+                    currentCertReason = `Atas keberhasilan luar biasa memenangkan Mode Tanding (Versus) Tingkat ${difficultyLabel} dengan mengalahkan lawan hingga kehabisan HEALTH POINT (Knock Out)!`;
                     currentCertBadge = `KEMENANGAN MUTLAK [${difficultyLabel}]: LAWAN KO!`;
                 } else if (p1.score >= 500) {
-                    winnerText = `Selamat, ${P1Title} Menang! 🏆`;
-                    currentWinnerName = studentName; currentWinnerClass = studentClass;
-                    currentCertReason = `Atas keberhasilan memenangkan Mode Tanding Tingkat ${difficultyLabel} dengan mencapai target skor maksimal tercepat:`;
+                    winnerText = `Selamat, ${studentName} Menang! 🏆`;
+                    currentWinnerName = studentName;
+                    currentWinnerClass = studentClass;
+                    currentCertReason = `Atas keberhasilan memenangkan Mode Tanding (Versus) Tingkat ${difficultyLabel} dengan menjadi yang tercepat mencapai target skor maksimal:`;
                     currentCertBadge = `SKOR MAKSIMAL [${difficultyLabel}]: 500 POIN!`;
                 } else if (p2.score >= 500) {
-                    winnerText = `Selamat, ${P2Title} Menang! 🏆`;
-                    currentWinnerName = student2Name; currentWinnerClass = student2Class;
-                    currentCertReason = `Atas keberhasilan memenangkan Mode Tanding Tingkat ${difficultyLabel} dengan mencapai target skor maksimal tercepat:`;
+                    winnerText = `Selamat, ${student2Name} Menang! 🏆`;
+                    currentWinnerName = student2Name;
+                    currentWinnerClass = student2Class;
+                    currentCertReason = `Atas keberhasilan memenangkan Mode Tanding (Versus) Tingkat ${difficultyLabel} dengan menjadi yang tercepat mencapai target skor maksimal:`;
                     currentCertBadge = `SKOR MAKSIMAL [${difficultyLabel}]: 500 POIN!`;
                 } else {
                     if (p1.score > p2.score) {
-                        winnerText = `Selamat, ${P1Title} Menang! 🏆`;
-                        currentWinnerName = studentName; currentWinnerClass = studentClass;
-                        currentCertReason = `Atas skor akhir yang lebih unggul pada akhir pertandingan Mode Tanding Tingkat ${difficultyLabel}:`;
+                        winnerText = `Selamat, ${studentName} Menang! 🏆`;
+                        currentWinnerName = studentName;
+                        currentWinnerClass = studentClass;
+                        currentCertReason = `Atas skor akhir yang lebih unggul pada akhir pertandingan Mode Tanding (Versus) Tingkat ${difficultyLabel}:`;
                         currentCertBadge = `UNGGUL SKOR [${difficultyLabel}]: ${p1.score} POIN!`;
                     } else if (p2.score > p1.score) {
-                        winnerText = `Selamat, ${P2Title} Menang! 🏆`;
-                        currentWinnerName = student2Name; currentWinnerClass = student2Class;
-                        currentCertReason = `Atas skor akhir yang lebih unggul pada akhir pertandingan Mode Tanding Tingkat ${difficultyLabel}:`;
+                        winnerText = `Selamat, ${student2Name} Menang! 🏆`;
+                        currentWinnerName = student2Name;
+                        currentWinnerClass = student2Class;
+                        currentCertReason = `Atas skor akhir yang lebih unggul pada akhir pertandingan Mode Tanding (Versus) Tingkat ${difficultyLabel}:`;
                         currentCertBadge = `UNGGUL SKOR [${difficultyLabel}]: ${p2.score} POIN!`;
                     } else {
                         winnerText = "Wah, Pertandingan Seri! 🤝";
                     }
                 }
                 document.getElementById('eval-title').innerText = winnerText;
+                // Tampilkan Sertifikat Pemenang di mode Versus
                 if (p1.score >= 500 || p2.score >= 500 || p1.lives <= 0 || p2.lives <= 0) {
-                    // Kalau online guest, sertifikatnya atas nama dia jika dia yang menang (p2)
-                    if (isOnlineGuest && (p2.score >= 500 || p1.lives <= 0)) document.getElementById('claim-certificate-container').classList.remove('hidden');
-                    else if (!isOnlineGuest) document.getElementById('claim-certificate-container').classList.remove('hidden');
-                    else document.getElementById('claim-certificate-container').classList.add('hidden');
-                } else { document.getElementById('claim-certificate-container').classList.add('hidden'); }
+                    document.getElementById('claim-certificate-container').classList.remove('hidden');
+                } else {
+                    document.getElementById('claim-certificate-container').classList.add('hidden');
+                }
             } else {
                 document.getElementById('eval-final-score').innerText = p1.score;
                 document.getElementById('eval-title').innerText = "Petualangan Berakhir!";
-                currentWinnerName = studentName; currentWinnerClass = studentClass;
+                currentWinnerName = studentName;
+                currentWinnerClass = studentClass;
                 currentCertReason = `Atas keberhasilan luar biasa menyelesaikan seluruh tantangan permainan matematika dasar Tingkat ${difficultyLabel} secara sempurna dengan nilai maksimal:`;
                 currentCertBadge = `SKOR SANGAT MEMUASKAN [${difficultyLabel}]: 500 POIN`;
-                if (p1.score >= 500) document.getElementById('claim-certificate-container').classList.remove('hidden');
-                else document.getElementById('claim-certificate-container').classList.add('hidden');
+                
+                if (p1.score >= 500) {
+                    document.getElementById('claim-certificate-container').classList.remove('hidden');
+                } else {
+                    document.getElementById('claim-certificate-container').classList.add('hidden');
+                }
             }
-            
+            // Memasukkan hasil waktu bermain ke elemen UI evaluasi & sertifikat
             document.getElementById('eval-time-score').innerText = timeString;
             document.getElementById('cert-time-text').innerText = certTimeString;
-            const starsContainer = document.getElementById('eval-stars'); starsContainer.innerHTML = '';
-            let highestScore = (gameMode === 2 || gameMode === 3) ? Math.max(p1.score, p2.score) : p1.score;
+            const starsContainer = document.getElementById('eval-stars');
+            starsContainer.innerHTML = '';
+            let highestScore = gameMode === 2 ? Math.max(p1.score, p2.score) : p1.score;
             let starsEarned = 1;
-            if (highestScore >= 500) starsEarned = 3; else if (highestScore >= 200) starsEarned = 2; 
+            if (highestScore >= 500) starsEarned = 3;
+            else if (highestScore >= 200) starsEarned = 2; 
             for (let i = 0; i < 3; i++) {
                 const star = document.createElement('i');
-                if (i < starsEarned) star.className = "fa-solid fa-star text-amber-400"; else star.className = "fa-regular fa-star text-slate-700";
+                if (i < starsEarned) star.className = "fa-solid fa-star text-amber-400";
+                else star.className = "fa-regular fa-star text-slate-700";
                 starsContainer.appendChild(star);
             }
             
             const listContainer = document.getElementById('eval-list');
             const placeholder = document.getElementById('eval-details-placeholder');
             if (incorrectList.length > 0) {
-                placeholder.classList.add('hidden'); listContainer.classList.remove('hidden'); listContainer.innerHTML = '';
-                const uniqueErrors = []; const seenQuestions = new Set();
-                incorrectList.forEach(item => { if (!seenQuestions.has(item.text)) { seenQuestions.add(item.text); uniqueErrors.push(item); } });
+                placeholder.classList.add('hidden');
+                listContainer.classList.remove('hidden');
+                listContainer.innerHTML = '';
+                const uniqueErrors = [];
+                const seenQuestions = new Set();
+                incorrectList.forEach(item => {
+                    if (!seenQuestions.has(item.text)) {
+                        seenQuestions.add(item.text); uniqueErrors.push(item);
+                    }
+                });
                 uniqueErrors.forEach(item => {
                     const li = document.createElement('li');
                     li.className = "bg-slate-900 border border-slate-800 p-3.5 rounded-xl text-left flex items-start gap-3 transition hover:border-red-500/30";
                     li.innerHTML = `
-                        <div class="bg-red-500/10 text-red-400 p-2 rounded-lg text-sm mt-0.5"><i class="fa-solid fa-circle-xmark"></i></div>
+                        <div class="bg-red-500/10 text-red-400 p-2 rounded-lg text-sm mt-0.5">
+                            <i class="fa-solid fa-circle-xmark"></i>
+                        </div>
                         <div>
                             <div class="font-bold text-slate-300 text-sm">Soal: ${item.text.replace('...?', '')}</div>
-                            <div class="text-xs text-slate-400 mt-0.5">Jawaban Kamu: <span class="text-red-400 font-bold">${item.userChoice}</span> | Jawaban Benar: <span class="text-teal-400 font-bold">${item.correctAnswer}</span></div>
-                        </div>`;
+                            <div class="text-xs text-slate-400 mt-0.5">
+                                Jawaban Kamu: <span class="text-red-400 font-bold">${item.userChoice}</span> | 
+                                Jawaban Benar: <span class="text-teal-400 font-bold">${item.correctAnswer}</span>
+                            </div>
+                        </div>
+                    `;
                     listContainer.appendChild(li);
                 });
             } else {
-                placeholder.classList.remove('hidden'); listContainer.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                listContainer.classList.add('hidden');
             }
         }
         function showCertificate() {
@@ -1804,15 +1845,20 @@
             document.getElementById('cert-student-class').innerText = currentWinnerClass;
             document.getElementById('cert-reason').innerText = currentCertReason;
             document.getElementById('cert-badge').innerText = currentCertBadge;
-            const dateStr = new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const currentDate = new Date();
+            const formatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
+            const dateStr = currentDate.toLocaleDateString('id-ID', formatOptions);
             document.getElementById('cert-date').innerText = dateStr;
             document.getElementById('certificate-modal').classList.remove('hidden');
             playSfx('combo_trigger');
         }
-        function closeCertificate() { document.getElementById('certificate-modal').classList.add('hidden'); exitToMenu(); }
+        function closeCertificate() {
+            document.getElementById('certificate-modal').classList.add('hidden');
+            exitToMenu();
+        }
         function retryGame() {
-            if (gameMode === 3) openLobby(); // Jika online, harus masuk lobi lagi karena ID room tidak bisa direuse untuk fresh start
-            else startGame(gameMode);
+            startGame(gameMode);
         }
     </script>
 </body>
